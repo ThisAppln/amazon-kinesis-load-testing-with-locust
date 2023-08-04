@@ -8,7 +8,8 @@ test("KinesisLoadTestingWithLocustStack Snapshot test", () => {
     // WHEN
   const stack = new KinesisLoadTestingWithLocustStack(app, "KinesisLoadTestingWithLocustStack", {
     env: {
-      region: "eu-central-1",
+     // region: "eu-central-1",
+     region: "us-west-2",
     },
   });
   // THEN

@@ -7,8 +7,9 @@ import uuid
 import logging
 from locust import User, task, constant, events
 from faker import Faker
+from pathlib import Path
 
-REGION = os.environ.get("REGION") if os.environ.get("REGION") else "eu-central-1"
+REGION = os.environ.get("REGION") if os.environ.get("REGION") else "us-west-2"
 BATCH_SIZE = int(os.environ.get("LOCUST_BATCH_SIZE")) if os.environ.get("LOCUST_BATCH_SIZE") else 1
 
 faker = Faker()
@@ -68,11 +69,15 @@ class SensorAPIUser(KinesisBotoUser):
         else:
             status = "OK"
 
+        # txt = Path('sampleData.txt').read_text()
+
         return {
-            'sensorId': f"{sensor_id}_{sensor_reading}",
-            'temperature': current_temperature,
-            'status': status,
-            'timestamp': round(time.time()*1000)
+           'SensorID': f"{sensor_id}_{sensor_reading}_{current_temperature}",
+            'Temperature': current_temperature,
+            'Status': status,
+            'Timestamp': round(time.time()*1000),
+            'EventType': "Chase"
+         #   'FileContent': txt
         }
 
     def on_start(self):
@@ -84,7 +89,7 @@ class SensorAPIUser(KinesisBotoUser):
         events = []
         for i in range(BATCH_SIZE):
             sensor_reading = self.generate_sensor_reading(self.user_id, i)
-            event = {'Data': json.dumps(sensor_reading), 'PartitionKey': str(sensor_reading['sensorId'])}
+            event = {'Data': json.dumps(sensor_reading), 'PartitionKey': str(sensor_reading['SensorID'])}
             events.append(event)
 
         logging.debug("Generated events for Kinesis: %s", events)
